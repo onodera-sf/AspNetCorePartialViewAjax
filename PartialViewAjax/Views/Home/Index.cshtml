@@ -1,0 +1,57 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+}
+@section Scripts {
+	<script>
+	$(document).ready(function () {
+
+		@* 画面表示後のタイミングで読み込む *@
+		$("#load_area").load("/Home/PartialLoad");
+
+		@* ボタンを押したときに読み込む *@
+		$("#button1").click(function () {
+			@* 存在するアクションを指定 *@
+			loadPartialView('/Home/PartialButton');
+		});
+		$("#button2").click(function () {
+			@* 存在しないアクションを指定 *@
+			loadPartialView('/Home/PartialButton_xxxxxxxx');
+		});
+	});
+
+	@* 指定したパスの partial view を読み込む *@
+	function loadPartialView(loadPath) {
+		$("#button_area").text('読み込み中…。');
+		$("#button_area").load(loadPath, function (response, status, xhr) {
+			@* status === 'error' ならエラーと判断 *@
+			if (status === 'error') {
+				$('#message').text('エラー (status : ' + xhr.status + ', statusText : ' + xhr.statusText + ')');
+			} else {
+				$('#message').text('正常 (status : ' + xhr.status + ', statusText : ' + xhr.statusText + ')');
+			}
+		});
+	}
+	</script>
+}
+
+<h3>Server Partial</h3>
+<p>
+	リクエスト後のレスポンス HTML 時点で部分ビューが展開されている。
+</p>
+<partial name="Partial" model="@(new List<string>() { "Server1", "Server2", "Server3" })" />
+
+<h3>Client Load Ajax Partial</h3>
+<p>
+	画面表示後に自動的にビューが読み込まれる。<br />
+	Web ブラウザのデバッガのブレークポイントでスクリプトの処理を止めれば
+	表示のタイミングでは読み込まれていないことは確認できる。
+</p>
+<div id="load_area">読み込み中…。</div>
+
+<h3>Button Ajax Partial</h3>
+<p>ボタンを押すとビューが読み込まれる</p>
+<button type="button" id="button1" class="btn btn-primary">Partial View 読み込み (正常)</button>
+<button type="button" id="button2" class="btn btn-danger">Partial View 読み込み (エラー)</button>
+<div id="message"></div>
+<div id="button_area"></div>
+
